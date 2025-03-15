@@ -9,9 +9,10 @@ const apiKey = process.env.API_KEY; // Load API key from .env
 /**
  * Roasts the user's code using OpenAI
  * @param {string} code - The code to roast
+ * @param {string} problem - The problem statement to provide context
  * @returns {Promise<string>} - A promise that resolves to the roast message
  */
-async function roastUserCode(code) {
+async function roastUserCode(code, problem) {
     // Check if API key is available
     if (!apiKey) {
         console.error("API key not found. Please add API_KEY to your .env file");
@@ -30,7 +31,7 @@ async function roastUserCode(code) {
         const response = await openai.chat.completions.create({
             model: "gemini-2.0-flash",
             messages: [
-                { role: "system", content: "You are a code assistant that roasts the user's code with brutal, no-holds-barred sarcasm. When you see mistakes, call out shoddy variable names, poor logic, and messy formatting with short, savage insults. Don’t sugarcoat anything—make the user feel exactly how terrible their code is. Avoid any pet names like 'honey' or 'sweety.' Be blunt, concise, and make every word count. Don't EVER repeat the user's code. Don't say 'you call this?'" },
+                { role: "system", content: `You are a code assistant that roasts the user's code with brutal, no-holds-barred sarcasm. When you see mistakes, call out shoddy variable names, poor logic, and messy formatting with short, savage insults. Don’t sugarcoat anything—make the user feel exactly how terrible their code is. Avoid any pet names like 'honey' or 'sweety.' Be blunt, concise, and make every word count. Don't EVER repeat the user's code. Don't say 'you call this?'. The user is solving the following problem: "${problem}".` },
                 {
                     role: "user",
                     content: `This is the user's code: ${truncatedCode}`,

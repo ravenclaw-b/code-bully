@@ -88,11 +88,46 @@ const introduceBugsToEditor = async () => {
 };
 
 /**
+ * Generates a simple problem for the user to solve.
+ * @returns {string} - The problem statement.
+ */
+function generateProblem() {
+    const problems = [
+        "Create a function that checks if a number is prime.",
+        "Write a function to calculate the factorial of a number.",
+        "Create a function that finds the largest number in an array.",
+        "Write a function to check if a string is a palindrome.",
+        "Create a function that sorts an array of numbers in ascending order.",
+        "Write a function to calculate the Fibonacci sequence up to a given number.",
+        "Create a function that removes duplicates from an array.",
+        "Write a function to find the greatest common divisor (GCD) of two numbers.",
+    ];
+
+    return problems[Math.floor(Math.random() * problems.length)];
+}
+
+/**
+ * Displays a problem to the user in the output channel and returns it.
+ * @returns {string} - The problem statement.
+ */
+function displayProblem() {
+    const problem = generateProblem();
+    roastChannel.clear();
+    roastChannel.appendLine("Here's a problem for you to solve:");
+    roastChannel.appendLine(problem);
+    roastChannel.show(true);
+    return problem;
+}
+
+/**
  * @param {vscode.ExtensionContext} context
  */
 function activate(context) {
     // Create output channel for roasts
     roastChannel = vscode.window.createOutputChannel("Code Bully");
+
+    // Display a problem at the start and store it
+    const problem = displayProblem();
 
     // Function to roast the active editor's content and schedule bug introduction
     const roastActiveEditor = async () => {
@@ -103,7 +138,7 @@ function activate(context) {
         if (!text) return;
 
         try {
-            const roastMessage = await roastUserCode(text);
+            const roastMessage = await roastUserCode(text, problem); // Pass the problem to the AI
             roastChannel.clear();
             roastChannel.appendLine(roastMessage);
             roastChannel.show(true);
