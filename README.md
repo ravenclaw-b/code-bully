@@ -16,42 +16,46 @@ This extension provides snarky, sarcastic comments about your code. When you're 
 
 ## How to Use
 
-1. **Problem Generator**:
-   - When the extension starts, it will display a simple coding problem in the output channel.
-   - Use this problem as a challenge to improve your coding skills.
+1. **Clone the Repository**:
+   - Clone this repository to your local machine:
+     ```
+     git clone https://github.com/ravineclaw/code-bully.git
+     ```
+   - Navigate to the project directory:
+     ```
+     cd code-bully
+     ```
 
-2. **Manual Roasting**:
-   - Open a code file or select some code.
-   - Open the Command Palette (`Ctrl+Shift+P` or `Cmd+Shift+P` on Mac).
-   - Type "Roast My Code" and select the command.
+2. **Set Up the Environment**:
+   - Create a `.env` file in the root directory and add your OpenAI API key:
+     ```
+     API_KEY=your_openai_api_key
+     ```
 
-3. **Automatic Roasting**:
-   - The extension will roast your active file every 30 seconds.
+3. **Install Dependencies**:
+   - Run the following command to install the required dependencies:
+     ```
+     npm install
+     ```
 
-4. **Bug Injection**:
-   - After each roast, two random bugs will be introduced into your code.
+4. **Debug the Extension**:
+   - Open the project in VS Code.
+   - Press `F5` to start debugging the extension in a new VS Code window.
 
-5. **Text-to-Speech**:
-   - The roast will be read aloud using your system's default voice.
+5. **Features**:
+   - **Problem Generator**: When the extension starts, it will display a simple coding problem in the output channel.
+   - **Manual Roasting**: Open the Command Palette (`Ctrl+Shift+P` or `Cmd+Shift+P` on Mac), type "Roast My Code," and select the command.
+   - **Automatic Roasting**: The extension will roast your active file every 30 seconds.
+   - **Bug Injection**: After each roast, two random bugs will be introduced into your code.
+   - **Text-to-Speech**: The roast will be read aloud using your system's default voice.
 
 6. **Brace yourself for some harsh (but funny) criticism!**
-
-## Extension Settings
-
-No specific settings yet.
 
 ## Known Issues
 
 - Requires internet connection.
 - API key must be valid.
 - Large amounts of code may be truncated due to API token limits.
-
-## Testing
-
-Run tests with:
-```
-npm test
-```
 
 ## Release Notes
 
@@ -70,8 +74,7 @@ Initial release of Code Bully:
 
 ## Working with the Code
 
-- Run `npm install` to install dependencies.
-- Make sure `.env` file contains a valid API key.
+- Clone the repository and set up the environment as described above.
 - Press `F5` to start debugging in a new VS Code window.
 
 **Enjoy being insulted by your IDE!**
