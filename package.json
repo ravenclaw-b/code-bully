@@ -1,7 +1,36 @@
 {
+  "name": "code-bully",
+  "displayName": "Code Bully",
+  "description": "A VS Code extension that makes fun of your code with snarky comments",
+  "version": "0.1.0",
+  "publisher": "code-bully",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [],
+  "main": "./extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "code-bully.helloWorld",
+        "title": "Hello World from Code Bully"
+      },
+      {
+        "command": "code-bully.roastCode",
+        "title": "Roast My Code"
+      }
+    ]
+  },
   "dependencies": {
     "axios": "^1.8.3",
     "dotenv": "^16.4.7",
-    "openai": "^4.87.3"
+    "openai": "^4.87.3",
+    "vscode": "^1.1.37"
+  },
+  "scripts": {
+    "test": "node ./.vscode-test.mjs"
   }
 }

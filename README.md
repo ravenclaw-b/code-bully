@@ -1,65 +1,65 @@
-# code-bully README
+# Code Bully - VS Code Extension
 
-This is the README for your extension "code-bully". After writing up a brief description, we recommend including the following sections.
+This extension provides snarky, sarcastic comments about your code. When you're feeling brave enough for some brutal feedback, Code Bully will happily point out the flaws in your code.
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
-
-For example if there is an image subfolder under your extension project workspace:
-
-\!\[feature X\]\(images/feature-x.png\)
-
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+- **Roast My Code**: Get hilariously mean feedback about your selected code or the entire file
+- **Automatic Roasting**: Your code gets roasted whenever you run or debug it
+- **Works with Code Runner**: Also roasts your code when using the popular Code Runner extension
+- Simple API that connects to OpenAI to generate roasts
 
 ## Requirements
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+- Valid API key in the `.env` file for OpenAI/Gemini API
+
+## How to Use
+
+1. Manual Roasting:
+   - Open a code file or select some code
+   - Open the Command Palette (`Ctrl+Shift+P` or `Cmd+Shift+P` on Mac)
+   - Type "Roast My Code" and select the command
+
+2. Automatic Roasting:
+   - Simply run or debug your code (press F5 or use the Run menu)
+   - Or use Code Runner extension to run your code
+   - The extension will automatically roast your active file
+
+3. Brace yourself for some harsh (but funny) criticism!
 
 ## Extension Settings
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
-
-For example:
-
-This extension contributes the following settings:
-
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+No specific settings yet.
 
 ## Known Issues
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+- Requires internet connection
+- API key must be valid
+- Large amounts of code may be truncated due to API token limits
+
+## Testing
+
+Run tests with:
+```
+npm test
+```
 
 ## Release Notes
 
-Users appreciate release notes as you update your extension.
+### 0.1.0
 
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
+Initial release of Code Bully:
+- Hello World command
+- Roast My Code command
+- Automatic roasting when running code
+- AI-powered code roasting
 
 ---
 
-## Working with Markdown
+## Working with the Code
 
-You can author your README using Visual Studio Code.  Here are some useful editor keyboard shortcuts:
+- Run `npm install` to install dependencies
+- Make sure `.env` file contains a valid API key
+- Press `F5` to start debugging in a new VS Code window
 
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux)
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux)
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+**Enjoy being insulted by your IDE!**
