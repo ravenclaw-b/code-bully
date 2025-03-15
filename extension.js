@@ -2,9 +2,13 @@
 // Import the module and reference it with the alias vscode in your code below
 const vscode = require('vscode');
 const { roastUserCode } = require('./roast');
+const say = require('say'); // Import the say package
 
 // Output channel for displaying roasts
 let roastChannel;
+
+// Track if a speech is currently active
+let isSpeaking = false;
 
 /**
  * Introduces random bugs into the code.
@@ -13,6 +17,7 @@ let roastChannel;
  */
 function introduceBugs(code) {
     const bugTypes = [
+        // JavaScript Bugs
         (code) => code.replace(/;/, ''), // Remove a semicolon
         (code) => code.replace(/\(/, '{').replace(/\)/, '}'), // Add extra brackets
         (code) => code.replace(/==/g, '=').replace(/=/, '=='), // Swap == and =
@@ -25,11 +30,38 @@ function introduceBugs(code) {
         (code) => code.replace(/\b0\b/g, '1').replace(/\b1\b/g, '0'), // Swap 0 and 1
         (code) => code.replace(/(\d+)/, (match) => `${parseInt(match) + 1}`), // Add +1 randomly
         (code) => code.replace(/^(\s+)/gm, (match) => match + '    '), // Mess with indents
+		(code) => code.replace(/\b(var|let|const)\b/g, (match) => match + ' '), // Append an extra space after var/let/const
+        (code) => code.replace(/(\w+)\(/g, '$1 ('), // Insert a space before function call parentheses
+        (code) => code.replace(/if\(/g, 'if ('), // Insert a space after if
+        (code) => code.replace(/for\(/g, 'for ('), // Insert a space after for
+        (code) => code.replace(/while\(/g, 'while ('), // Insert a space after while
+        (code) => code.replace(/function\s+(\w+)/g, (match, p1) => 'function ' + p1.toLowerCase()), // Lowercase function names
+        (code) => code.replace(/(\w+)\s*=\s*(\w+)/g, '$1 = $2 '), // Append an extra space after assignment
+        (code) => code.replace(/(\w+)\.length/g, '$1 .length'), // Insert a space before .length
+        (code) => code.replace(/(\w+)\./g, '$1 .'), // Insert a space after variable before dot
+        (code) => code.replace(/return/g, 'return '), // Append an extra space after return
+        (code) => code.replace(/=>/g, '=> '), // Append extra space after arrow
+        (code) => code.replace(/(\w)(\s*)(;)/g, '$1$2 ;'), // Add an extra space before semicolon
+        (code) => code.replace(/(\w+)\s*\+\s*(\w+)/g, '$1 + $2'), // Ensure spacing around plus
+        (code) => code.replace(/(\w+)\s*\-\s*(\w+)/g, '$1 - $2'), // Ensure spacing around minus
+        (code) => code.replace(/(\w+)\s*\*\s*(\w+)/g, '$1 * $2'), // Ensure spacing around multiplication
+        (code) => code.replace(/(\w+)\s*\/\s*(\w+)/g, '$1 / $2'), // Ensure spacing around division
+        (code) => code.replace(/(\w+)\.(\w+)/g, '$1 . $2'), // Add spaces around dot operator
+        (code) => code.replace(/(\s+)$/gm, ''), // Remove trailing whitespace from each line
+        (code) => code.replace(/\n+/g, '\n'), // Replace multiple newlines with a single newline
+        (code) => code.replace(/\b(\w{4,})\b/g, (match) => match.replace(/e/g, '3')), // Replace 'e' with '3' in words of 4+ letters
     ];
+    let appliedBugCount = 0;
 
-    for (let i = 0; i < 3; i++) {
+    while (appliedBugCount < 2) {
         const randomBug = bugTypes[Math.floor(Math.random() * bugTypes.length)];
-        code = randomBug(code);
+        const newCode = randomBug(code);
+
+        // Ensure the bug actually changes the code
+        if (newCode !== code) {
+            code = newCode;
+            appliedBugCount++;
+        }
     }
 
     return code;
@@ -76,6 +108,16 @@ function activate(context) {
             roastChannel.appendLine(roastMessage);
             roastChannel.show(true);
 
+            // Stop any ongoing speech before starting a new one
+            if (isSpeaking) {
+                say.stop();
+            }
+
+            isSpeaking = true;
+            say.speak(roastMessage, 'Alex', 1.2, () => {
+                isSpeaking = false; // Mark speech as finished
+            });
+
             // Schedule bug introduction 5 seconds after the roast
             setTimeout(() => {
                 introduceBugsToEditor();
@@ -85,94 +127,12 @@ function activate(context) {
         }
     };
 
-    // Delay the first roast by 1 minute
-    setTimeout(() => {
-        roastActiveEditor();
-    }, 60000);
-
-    // Use the console to output diagnostic information (console.log) and errors (console.error)
-    // This line of code will only be executed once when your extension is activated
-    console.log('Congratulations, your extension "code-bully" is now active!');
-
-    // The command has been defined in the package.json file
-    // Now provide the implementation of the command with registerCommand
-    // The commandId parameter must match the command field in package.json
-    const disposable = vscode.commands.registerCommand('code-bully.helloWorld', function () {
-        // The code you place here will be executed every time your command is executed
-
-        // Display a message box to the user
-        vscode.window.showInformationMessage('Hello World from Code Bully!');
-    });
-
-    // Register the roast code command
-    const roastDisposable = vscode.commands.registerCommand('code-bully.roastCode', async function () {
-        const editor = vscode.window.activeTextEditor;
-        if (!editor) {
-            vscode.window.showErrorMessage('No code found to roast. Open a file first!');
-            return;
-        }
-
-        // Get the selected text or the entire document
-        const selection = editor.selection;
-        const text = selection.isEmpty 
-            ? editor.document.getText() 
-            : editor.document.getText(selection);
-        
-        if (!text) {
-            vscode.window.showErrorMessage('No code to roast. Select some code or make sure your file has content.');
-            return;
-        }
-
-        // Show loading message
-        vscode.window.setStatusBarMessage('Roasting your code...', 2000);
-        
-        try {
-            // Call the roast function
-            const roastMessage = await roastUserCode(text);
-            
-            // Display the roast in the output channel
-            roastChannel.clear();
-            roastChannel.appendLine(roastMessage);
-            
-            // Show the roast channel automatically - force focus to make sure user sees it
-            roastChannel.show(true);
-        } catch (error) {
-            console.error(error);
-            vscode.window.showErrorMessage('Failed to roast your code: ' + error.message);
-        }
-    });
-
-    // Trigger a roast when a file is opened
-    const fileOpenDisposable = vscode.workspace.onDidOpenTextDocument(() => {
-        roastActiveEditor();
-    });
-
-    // Trigger a roast when the active editor changes
-    const activeEditorChangeDisposable = vscode.window.onDidChangeActiveTextEditor(() => {
-        roastActiveEditor();
-    });
-
-    // Trigger a roast every 30 seconds
+    // Trigger a roast and bug introduction every 30 seconds
     const interval = setInterval(roastActiveEditor, 30000);
 
-    // Register command to show roast panel
-    const showRoastDisposable = vscode.commands.registerCommand('code-bully.showRoast', function () {
-        if (roastChannel) {
-            roastChannel.show(true);
-        }
-    });
-
     context.subscriptions.push(
-        disposable, 
-        roastDisposable, 
-        fileOpenDisposable, 
-        activeEditorChangeDisposable, 
-        showRoastDisposable, 
-        roastChannel
+        { dispose: () => clearInterval(interval) }
     );
-
-    // Clear the interval when the extension is deactivated
-    context.subscriptions.push({ dispose: () => clearInterval(interval) });
 }
 
 // This method is called when your extension is deactivated
@@ -185,4 +145,4 @@ function deactivate() {
 module.exports = {
     activate,
     deactivate
-}
+};
