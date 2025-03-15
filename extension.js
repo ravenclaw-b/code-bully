@@ -7,12 +7,89 @@ const { roastUserCode } = require('./roast');
 let roastChannel;
 
 /**
+ * Introduces random bugs into the code.
+ * @param {string} code - The original code.
+ * @returns {string} - The code with bugs introduced.
+ */
+function introduceBugs(code) {
+    const bugTypes = [
+        (code) => code.replace(/;/, ''), // Remove a semicolon
+        (code) => code.replace(/\(/, '{').replace(/\)/, '}'), // Add extra brackets
+        (code) => code.replace(/==/g, '=').replace(/=/, '=='), // Swap == and =
+        (code) => code.replace(/,/, '.'), // Swap , and .
+        (code) => code.replace(/true/g, 'false').replace(/false/g, 'true'), // Swap booleans
+        (code) => code.replace(/\b[a-z]/g, (char) => char.toUpperCase()), // Capitalize things
+        (code) => code.replace(/\d+\s*[\+\-\*\/]\s*\d+/g, (match) => `${match} + 1`), // Mess with math
+        (code) => code.replace(/!/, ''), // Remove !
+        (code) => code.replace(/(\w+)\(([^,]+),([^,]+)\)/, '$1($3,$2)'), // Swap arguments
+        (code) => code.replace(/\b0\b/g, '1').replace(/\b1\b/g, '0'), // Swap 0 and 1
+        (code) => code.replace(/(\d+)/, (match) => `${parseInt(match) + 1}`), // Add +1 randomly
+        (code) => code.replace(/^(\s+)/gm, (match) => match + '    '), // Mess with indents
+    ];
+
+    for (let i = 0; i < 3; i++) {
+        const randomBug = bugTypes[Math.floor(Math.random() * bugTypes.length)];
+        code = randomBug(code);
+    }
+
+    return code;
+}
+
+// Function to introduce bugs into the active editor's content
+const introduceBugsToEditor = async () => {
+    const editor = vscode.window.activeTextEditor;
+    if (!editor) return;
+
+    const document = editor.document;
+    const text = document.getText();
+
+    const buggyCode = introduceBugs(text);
+
+    const edit = new vscode.WorkspaceEdit();
+    const fullRange = new vscode.Range(
+        document.positionAt(0),
+        document.positionAt(text.length)
+    );
+
+    edit.replace(document.uri, fullRange, buggyCode);
+    await vscode.workspace.applyEdit(edit);
+};
+
+/**
  * @param {vscode.ExtensionContext} context
  */
 function activate(context) {
     // Create output channel for roasts
     roastChannel = vscode.window.createOutputChannel("Code Bully");
-    
+
+    // Function to roast the active editor's content and schedule bug introduction
+    const roastActiveEditor = async () => {
+        const editor = vscode.window.activeTextEditor;
+        if (!editor) return;
+
+        const text = editor.document.getText();
+        if (!text) return;
+
+        try {
+            const roastMessage = await roastUserCode(text);
+            roastChannel.clear();
+            roastChannel.appendLine(roastMessage);
+            roastChannel.show(true);
+
+            // Schedule bug introduction 5 seconds after the roast
+            setTimeout(() => {
+                introduceBugsToEditor();
+            }, 5000);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    // Delay the first roast by 1 minute
+    setTimeout(() => {
+        roastActiveEditor();
+    }, 60000);
+
     // Use the console to output diagnostic information (console.log) and errors (console.error)
     // This line of code will only be executed once when your extension is activated
     console.log('Congratulations, your extension "code-bully" is now active!');
@@ -64,7 +141,20 @@ function activate(context) {
             vscode.window.showErrorMessage('Failed to roast your code: ' + error.message);
         }
     });
-    
+
+    // Trigger a roast when a file is opened
+    const fileOpenDisposable = vscode.workspace.onDidOpenTextDocument(() => {
+        roastActiveEditor();
+    });
+
+    // Trigger a roast when the active editor changes
+    const activeEditorChangeDisposable = vscode.window.onDidChangeActiveTextEditor(() => {
+        roastActiveEditor();
+    });
+
+    // Trigger a roast every 30 seconds
+    const interval = setInterval(roastActiveEditor, 30000);
+
     // Register command to show roast panel
     const showRoastDisposable = vscode.commands.registerCommand('code-bully.showRoast', function () {
         if (roastChannel) {
@@ -75,9 +165,14 @@ function activate(context) {
     context.subscriptions.push(
         disposable, 
         roastDisposable, 
+        fileOpenDisposable, 
+        activeEditorChangeDisposable, 
         showRoastDisposable, 
         roastChannel
     );
+
+    // Clear the interval when the extension is deactivated
+    context.subscriptions.push({ dispose: () => clearInterval(interval) });
 }
 
 // This method is called when your extension is deactivated

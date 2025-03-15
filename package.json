@@ -10,7 +10,14 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onStartupFinished",
+    "onCommand:code-bully.helloWorld",
+    "onCommand:code-bully.roastCode",
+    "onCommand:code-bully.showRoast",
+    "onDidOpenTextDocument",
+    "onDidChangeActiveTextEditor"
+  ],
   "main": "./extension.js",
   "contributes": {
     "commands": [
